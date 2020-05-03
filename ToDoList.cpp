@@ -67,8 +67,8 @@ namespace TueNg
 	}
 	void ToDoList::Add()
 	{
-		Utils::seperator();
-		Utils::Title_display("Adding task");
+		seperator();
+		Title_display("Adding task");
 		if (m_num_of_tasks == 10)
 		{
 			cout << "Ayo, 10 tasks are enough to work on! Don't pressure yourself too much" << endl;
@@ -87,6 +87,7 @@ namespace TueNg
 				}
 				else if (m_list_of_tasks[i] == nullptr)
 				{
+					m_list_of_tasks[i] = new Tasks();
 					m_list_of_tasks[i] = aTask;
 					m_num_of_tasks++;
 					cout << "Your task to do: ";
@@ -95,12 +96,12 @@ namespace TueNg
 				}
 			}
 		}
-		Utils::seperator();
+		seperator();
 	}
 	void ToDoList::Complete()
 	{
 		List_Tasks();
-		Utils::Title_display("Deleting a task");
+		Title_display("Deleting a task");
 		int index = 0;
 		if (m_num_of_tasks == 0)
 		{
@@ -110,7 +111,7 @@ namespace TueNg
 		{
 			cout << "Which task do you want to delete(number according to the list): ";
 			cin >> index;
-			while (index > m_num_of_tasks || cin.fail())
+			while (index > m_num_of_tasks || cin.fail() || index == 0)
 			{
 				cin.clear();
 				cin.ignore(10, '\n');
@@ -125,7 +126,6 @@ namespace TueNg
 					delete m_list_of_tasks[index - 1];
 					m_list_of_tasks[index - 1] = nullptr;
 					m_num_of_tasks--;
-					m_list_of_tasks[index - 1] = new Tasks();
 					for (int j = index - 1; j < m_num_of_tasks; j++)
 					{
 						Tasks* temp = new Tasks();
@@ -140,19 +140,19 @@ namespace TueNg
 					cout << "Task not found!" << endl;
 			}
 		}
-		Utils::seperator();
+		seperator();
 	}
 	void ToDoList::List_Tasks() const
 	{
 		if (m_num_of_tasks == 0)
 		{
-			Utils::seperator();
+			seperator();
 			cout << "You have no tasks!" << endl << endl;
 		}
 		else
 		{
-			Utils::seperator();
-			Utils::Title_display("List of tasks");
+			seperator();
+			Title_display("List of tasks");
 			for (int i = 0; i < m_num_of_tasks; i++)
 			{
 				if (m_list_of_tasks[i] != nullptr)
@@ -164,12 +164,12 @@ namespace TueNg
 				}
 			}
 		}
-		Utils::seperator();
+		seperator();
 	}
 	void ToDoList::Complete_All() 
 	{
-		Utils::seperator();
-		Utils::Title_display("Deleting all tasks");
+		seperator();
+		Title_display("Deleting all tasks");
 		if (ToDoList::isEmpty())
 		{
 			cout << "Deleting all the tasks" << endl; 
@@ -178,7 +178,7 @@ namespace TueNg
 		{
 			cout << "Have you done all your goals for today? " << endl;
 			cout << "(Y)es/(N)o: ";
-			if (!Utils::YesNo())
+			if (!YesNo())
 			{
 				cout << "Aborted!" << endl;
 			}
@@ -199,13 +199,13 @@ namespace TueNg
 				}
 			}
 		}
-		Utils::seperator();
+		seperator();
 	}
 	bool ToDoList::Exit() const 
 	{
 		cout << "This will terminate the program!" << endl;
 		cout << "Are you sure? (Y)es/(N)o: ";
-		if (Utils::YesNo())
+		if (YesNo())
 		{
 			cout << "Exiting program!" << endl;
 			return true;
@@ -229,7 +229,11 @@ namespace TueNg
 				aTask->setCsv(true);
 				aTask->read(ifs);
 				if ((aTask->getTask() < 'a' || aTask->getTask() > 'z') && (aTask->getTask() < 'A' || aTask->getTask() > 'Z'))
+				{
+					delete aTask;
+					aTask = nullptr;
 					return true;
+				}
 				if (!ifs.fail())
 				{
 					for (int i = 0; i < MAX_OF_LIST; i++)
@@ -310,6 +314,7 @@ namespace TueNg
 					break;
 				}
 				system("pause");
+				system("CLS");
 			}
 		}
 		else
@@ -317,6 +322,54 @@ namespace TueNg
 		return empty;
 	}
 
+	void ToDoList::seperator() const
+	{
+		HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(h, FOREGROUND_RED | FOREGROUND_INTENSITY);
+		SetConsoleTextAttribute(h, 2);
+		cout << endl;
+		cout << "-------------------------------------------" << endl << endl;
+		SetConsoleTextAttribute(h, 15);
+	}
+	void ToDoList::Title_display(const char* title) const
+	{
+		HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(h, FOREGROUND_RED | FOREGROUND_INTENSITY);
+		SetConsoleTextAttribute(h, 14);
+		cout << title << endl;
+		cout << "``````````````````" << endl;
+		SetConsoleTextAttribute(h, 15);
+	}
+	bool ToDoList::YesNo() const
+	{
+		{
+			char option[10];
+			bool response;
+			bool correct = false;
+			while (!correct)
+			{
+				cin >> option;
+				cin.clear();
+				cin.ignore(100, '\n');
+				if (option[1] != '\0' || (option[0] != 'Y' && option[0] != 'y' && option[0] != 'N' && option[0] != 'n'))
+				{
+					cout << "Invalid response, only (Y)es or (N)o are acceptable, retry: ";
+					correct = false;
+				}
+				else
+					correct = true;
+			}
+			if (option[0] == 'Y' || option[0] == 'y')
+			{
+				response = true;
+			}
+			else
+			{
+				response = false;
+			}
+			return response;
+		}
+	}
 }
 
 
